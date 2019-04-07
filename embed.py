@@ -5,6 +5,7 @@ im = Image.open('test.png')
 pix = im.load()
 hi,wi = im.size 
 input = open("enc", "r")
+outp = open("retrieved","w")
 
 completed = 0
 retrieved = ''
@@ -33,31 +34,45 @@ def embedbits(diff,colorpixel):
         bits = bits[nb:]
         #print(newbits)
         retrieved += newbits
+        val = colorpixel
+        data = newbits
+        bival = bin(val)
+        bival = bival[2:]
+        newbival = bival[:(len(bival)-len(data))] + data
+        #print(bival,newbival)
+        return int(newbival,2)
     else:
         newbits = bits + paddbits[:(nb-len(bits))]
         pad = nb-len(bits)
         retrieved += newbits
         #print("pad",newbits)
         #print("stats",newbits,retrieved)
+        val = colorpixel
+        data = newbits
+        bival = bin(val)
+        bival = bival[2:]
+        newbival = bival[:(len(bival)-len(data))] + data
 
         count += 1
         retrieved = retrieved[:(len(retrieved)-pad)]
-        print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
+        #print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
 
         binval = input.read(1)
         if len(binval) == 0:
             print("\nEmbedding Completed")
             completed = 1
-            sys.exit()
+            #print(bival,newbival)
+            return int(newbival,2)
+        outp.write(chr(int(retrieved,2)))
         b = ord(binval)
         #print(eightbit)
         bitstring = bin(b)
         bits = bitstring[2:]
         retrieved = ''
+        #print(bival,newbival)
+        return int(newbival,2)
 
         
-
-
 def classify(pvd):
     nbits = 0
     if(pvd < 16):
@@ -93,14 +108,22 @@ for i in range(0,lix*3,3):
                 gdif = abs(gdif)
                 bdif = abs(bdif)
 
-                embedbits(classify(rdif),'{0:08b}'.format(r))
-                embedbits(classify(gdif),'{0:08b}'.format(g))
-                embedbits(classify(bdif),'{0:08b}'.format(b))
+                if completed == 0:
+                    newr = embedbits(classify(rdif),r)
+                if completed == 0:
+                    newg = embedbits(classify(gdif),g)
+                if completed == 0:
+                    newb = embedbits(classify(bdif),b)
+                if completed == 1:
+                    im.save("protest.png")
+                    sys.exit()
 
 
                 capacity = capacity + classify(rdif) + classify(gdif) + classify(bdif)
                 #print("\n__",k,l,": ",pix[k,l],"bits: ",classify(rdif),classify(gdif),classify(bdif),"binary: ",'{0:08b}'.format(r))
-                pix[k,l] = (rdif,gdif,bdif)
-im.save('protest.png')
+                pix[k,l] = (newr,newg,newb)
+
+im.save("protest.png")
+
 
 print("\nCapacity: ",capacity)

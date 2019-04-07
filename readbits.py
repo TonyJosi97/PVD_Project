@@ -21,9 +21,9 @@ def main(args):
             bitstring = bin(b)
             bits = bitstring[2:]
             retrieved = ''
+            count += 1
             while True:
                 nb = rand()
-                count += 1
                 if(nb < len(bits)):
                     #print(bits,end=" ")
                     newbits = bits[:nb]
@@ -40,7 +40,7 @@ def main(args):
                     break
             retrieved = retrieved[:(len(retrieved)-pad)]
             #print()
-            print(int(retrieved,2),int(bitstring,2))
+            print("Data:",count,int(retrieved,2),int(bitstring,2))
             outp.write(chr(int(retrieved,2)))
     outp.close()
 
