@@ -1,0 +1,78 @@
+            eightbit = format(b, '#010b')
+            bitCounter = 0
+            while True:
+                bits = rand()
+                bitCounter += bits
+                if(bitCounter >= 8):
+                    break
+                if(bits == 3):
+                    newbits = 0b11100000 & int(eightbit,2)
+                    eightbit = 0b00011111 & int(eightbit,2)
+                    eightbit = format(eightbit, '#010b')
+                    print(format(newbits, '#010b'))
+                elif(bits == 4):
+                    newbits = 0b11110000 & int(eightbit,2)
+                    eightbit = 0b00001111 & int(eightbit,2)
+                    eightbit = format(eightbit, '#010b')
+                    print(format(newbits, '#010b'))
+                else:
+                    newbits = 0b11111000 & int(eightbit,2)
+                    eightbit = 0b00000111 & int(eightbit,2)
+                    eightbit = format(eightbit, '#010b')
+                    print(format(newbits, '#010b'))
+
+
+
+
+                    
+
+
+
+
+from PIL import Image
+
+
+im = Image.open('test.png')
+pix = im.load()
+hi,wi = im.size 
+
+def classify(pvd):
+    bits = 0
+    if(pvd < 16):
+        bits = 2
+    elif(16 < pvd < 32):
+        bits = 3
+    else:
+        bits = 4
+    return bits
+
+capacity = 0
+
+lix = hi//3
+liy = wi//3
+
+for i in range(0,lix*3,3):
+    for j in range(0,liy*3,3):
+        print("--------------")
+        rref,gref,bref = pix[i+1,j+1]
+        for k in range(i,(i+3)):
+            if(k >= hi):
+                break
+            for l in range(j,(j+3)):
+                if(k == i+1 and l == j+1):
+                    continue
+                if(l >= wi):
+                    break
+                r,g,b = pix[k,l]
+                rdif = r - rref
+                gdif = g - gref
+                bdif = b - bref
+                rdif = abs(rdif)
+                gdif = abs(gdif)
+                bdif = abs(bdif)
+                capacity = capacity + classify(rdif) + classify(gdif) + classify(bdif)
+                print("__",k,l,": ",pix[k,l],"bits: ",classify(rdif),classify(gdif),classify(bdif),"binary: ",'{0:08b}'.format(r))
+                pix[k,l] = (rdif,gdif,bdif)
+im.save('protest.png')
+
+print("\nCapacity: ",capacity)

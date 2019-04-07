@@ -5,7 +5,7 @@ python3 = sys.version_info.major >= 3
 paddbits = '0000000'
 
 def rand():
-    return randint(3, 5)
+    return randint(1, 3)
 
 def main(args):
     ipfile = args
@@ -40,7 +40,7 @@ def main(args):
                     break
             retrieved = retrieved[:(len(retrieved)-pad)]
             #print()
-            print(chr(int(retrieved,2)),end="")
+            print(int(retrieved,2),int(bitstring,2))
             outp.write(chr(int(retrieved,2)))
     outp.close()
 

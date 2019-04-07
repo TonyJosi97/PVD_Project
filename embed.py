@@ -1,18 +1,72 @@
 from PIL import Image
+import sys
 
 im = Image.open('test.png')
 pix = im.load()
 hi,wi = im.size 
+input = open("enc", "r")
+
+completed = 0
+retrieved = ''
+count = 0
+paddbits = '0000000'
+binval = input.read(1)
+if len(binval) == 0:
+    print("\nEmpty i/p File!")
+b = ord(binval)
+#print(eightbit)
+bitstring = bin(b)
+bits = bitstring[2:]
+
+def embedbits(diff,colorpixel):
+    nb = diff
+    global bits
+    global count
+    global bitstring
+    global retrieved 
+    global paddbits
+    global binval
+    global completed
+    if(nb < len(bits)):
+        #print(bits,end=" ")
+        newbits = bits[:nb]
+        bits = bits[nb:]
+        #print(newbits)
+        retrieved += newbits
+    else:
+        newbits = bits + paddbits[:(nb-len(bits))]
+        pad = nb-len(bits)
+        retrieved += newbits
+        #print("pad",newbits)
+        #print("stats",newbits,retrieved)
+
+        count += 1
+        retrieved = retrieved[:(len(retrieved)-pad)]
+        print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
+
+        binval = input.read(1)
+        if len(binval) == 0:
+            print("\nEmbedding Completed")
+            completed = 1
+            sys.exit()
+        b = ord(binval)
+        #print(eightbit)
+        bitstring = bin(b)
+        bits = bitstring[2:]
+        retrieved = ''
+
+        
+
 
 def classify(pvd):
-    bits = 0
+    nbits = 0
     if(pvd < 16):
-        bits = 2
+        nbits = 2
     elif(16 < pvd < 32):
-        bits = 3
+        nbits = 3
     else:
-        bits = 4
-    return bits
+        nbits = 4
+    return nbits
 
 capacity = 0
 
@@ -21,12 +75,14 @@ liy = wi//3
 
 for i in range(0,lix*3,3):
     for j in range(0,liy*3,3):
-        print("--------------")
+        #print("--------------")
         rref,gref,bref = pix[i+1,j+1]
         for k in range(i,(i+3)):
             if(k >= hi):
                 break
             for l in range(j,(j+3)):
+                if(k == i+1 and l == j+1):
+                    continue
                 if(l >= wi):
                     break
                 r,g,b = pix[k,l]
@@ -36,8 +92,14 @@ for i in range(0,lix*3,3):
                 rdif = abs(rdif)
                 gdif = abs(gdif)
                 bdif = abs(bdif)
+
+                embedbits(classify(rdif),'{0:08b}'.format(r))
+                embedbits(classify(gdif),'{0:08b}'.format(g))
+                embedbits(classify(bdif),'{0:08b}'.format(b))
+
+
                 capacity = capacity + classify(rdif) + classify(gdif) + classify(bdif)
-                print("__",k,l,": ",pix[k,l],"bits: ",classify(rdif),classify(gdif),classify(bdif),"binary: ",'{0:08b}'.format(r))
+                #print("\n__",k,l,": ",pix[k,l],"bits: ",classify(rdif),classify(gdif),classify(bdif),"binary: ",'{0:08b}'.format(r))
                 pix[k,l] = (rdif,gdif,bdif)
 im.save('protest.png')
 
