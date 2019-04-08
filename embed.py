@@ -2,15 +2,18 @@ from PIL import Image
 import sys
 
 im = Image.open('test.png')
-pix = im.load()
-hi,wi = im.size 
 input = open("enc", "r")
 outp = open("retrieved","w")
+lg = open("embedlog","w")
+
+pix = im.load()
+hi,wi = im.size 
 
 completed = 0
 retrieved = ''
 count = 0
 paddbits = '0000000'
+
 binval = input.read(1)
 if len(binval) == 0:
     print("\nEmpty i/p File!")
@@ -19,7 +22,21 @@ b = ord(binval)
 bitstring = bin(b)
 bits = bitstring[2:]
 
-def embedbits(diff,colorpixel):
+capacity = 0
+lix = hi//3
+liy = wi//3
+
+def classify(pvd):
+    nbits = 0
+    if(pvd < 16):
+        nbits = 2
+    elif(16 < pvd < 32):
+        nbits = 3
+    else:
+        nbits = 4
+    return nbits
+
+def embedbits(i,j,pixel,diff,colorpixel):
     nb = diff
     global bits
     global count
@@ -28,6 +45,7 @@ def embedbits(diff,colorpixel):
     global paddbits
     global binval
     global completed
+    pad = 0
     if(nb < len(bits)):
         #print(bits,end=" ")
         newbits = bits[:nb]
@@ -40,6 +58,8 @@ def embedbits(diff,colorpixel):
         bival = bival[2:]
         newbival = bival[:(len(bival)-len(data))] + data
         #print(bival,newbival)
+        print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+        lg.write("%s %s %s %s %s %s" % (i,j,pixel,diff,pad,"\n"))
         return int(newbival,2)
     else:
         newbits = bits + paddbits[:(nb-len(bits))]
@@ -59,6 +79,8 @@ def embedbits(diff,colorpixel):
 
         binval = input.read(1)
         if len(binval) == 0:
+            print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+            lg.write("%s %s %s %s %s %s" % (i,j,pixel,diff,pad,"\n"))
             print("\nEmbedding Completed")
             completed = 1
             #print(bival,newbival)
@@ -70,23 +92,9 @@ def embedbits(diff,colorpixel):
         bits = bitstring[2:]
         retrieved = ''
         #print(bival,newbival)
+        print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+        lg.write("%s %s %s %s %s %s" % (i,j,pixel,diff,pad,"\n"))
         return int(newbival,2)
-
-        
-def classify(pvd):
-    nbits = 0
-    if(pvd < 16):
-        nbits = 2
-    elif(16 < pvd < 32):
-        nbits = 3
-    else:
-        nbits = 4
-    return nbits
-
-capacity = 0
-
-lix = hi//3
-liy = wi//3
 
 for i in range(0,lix*3,3):
     for j in range(0,liy*3,3):
@@ -109,21 +117,17 @@ for i in range(0,lix*3,3):
                 bdif = abs(bdif)
 
                 if completed == 0:
-                    newr = embedbits(classify(rdif),r)
+                    newr = embedbits(k,l,'r',classify(rdif),r)
                 if completed == 0:
-                    newg = embedbits(classify(gdif),g)
+                    newg = embedbits(k,l,'g',classify(gdif),g)
                 if completed == 0:
-                    newb = embedbits(classify(bdif),b)
+                    newb = embedbits(k,l,'b',classify(bdif),b)
                 if completed == 1:
                     im.save("protest.png")
-                    sys.exit()
+                    lg.close()
+                    sys.exit("Done..Exiting main prog.")
 
 
                 capacity = capacity + classify(rdif) + classify(gdif) + classify(bdif)
                 #print("\n__",k,l,": ",pix[k,l],"bits: ",classify(rdif),classify(gdif),classify(bdif),"binary: ",'{0:08b}'.format(r))
                 pix[k,l] = (newr,newg,newb)
-
-im.save("protest.png")
-
-
-print("\nCapacity: ",capacity)
