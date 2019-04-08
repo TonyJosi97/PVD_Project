@@ -36,6 +36,29 @@ def classify(pvd):
         nbits = 4
     return nbits
 
+def calcCapacity():
+    global capacity
+    for i in range(0,lix*3,3):
+       for j in range(0,liy*3,3):
+            rref,gref,bref = pix[i+1,j+1]
+            for k in range(i,(i+3)):
+                if(k >= hi):
+                    break
+                for l in range(j,(j+3)):
+                    if(k == i+1 and l == j+1):
+                        continue
+                    if(l >= wi):
+                        break
+                    r,g,b = pix[k,l]
+                    rdif = r - rref
+                    gdif = g - gref
+                    bdif = b - bref
+                    rdif = abs(rdif)
+                    gdif = abs(gdif)
+                    bdif = abs(bdif)
+                    capacity = capacity + classify(rdif) + classify(gdif) + classify(bdif)
+    return capacity
+
 def embedbits(i,j,pixel,diff,colorpixel):
     nb = diff
     global bits
@@ -58,7 +81,7 @@ def embedbits(i,j,pixel,diff,colorpixel):
         bival = bival[2:]
         newbival = bival[:(len(bival)-len(data))] + data
         #print(bival,newbival)
-        print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+        #print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
         lg.write("%s %s %s %s %s %s" % (i,j,pixel,diff,pad,"\n"))
         return int(newbival,2)
     else:
@@ -72,16 +95,14 @@ def embedbits(i,j,pixel,diff,colorpixel):
         bival = bin(val)
         bival = bival[2:]
         newbival = bival[:(len(bival)-len(data))] + data
-
         count += 1
         retrieved = retrieved[:(len(retrieved)-pad)]
         #print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
-
         binval = input.read(1)
         if len(binval) == 0:
-            print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+            #print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
             lg.write("%s %s %s %s %s %s" % (i,j,pixel,diff,pad,"\n"))
-            print("\nEmbedding Completed")
+            print("Embedding Completed")
             completed = 1
             #print(bival,newbival)
             return int(newbival,2)
@@ -92,10 +113,11 @@ def embedbits(i,j,pixel,diff,colorpixel):
         bits = bitstring[2:]
         retrieved = ''
         #print(bival,newbival)
-        print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+        #print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
         lg.write("%s %s %s %s %s %s" % (i,j,pixel,diff,pad,"\n"))
         return int(newbival,2)
 
+print("Total Embd. Capacity: ",calcCapacity())
 for i in range(0,lix*3,3):
     for j in range(0,liy*3,3):
         #print("--------------")
