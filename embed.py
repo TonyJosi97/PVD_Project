@@ -66,13 +66,7 @@ def calcCapacity():
 
 def embedbits(i, j, pixel, diff, colorpixel):
     nb = diff
-    global bits
-    global count
-    global bitstring
-    global retrieved
-    global paddbits
-    global binval
-    global completed
+    global bits,count,bitstring,paddbits,binval,completed,retrieved
     pad = 0
     if nb < len(bits):
         # print(bits,end=" ")
