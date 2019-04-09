@@ -1,3 +1,9 @@
+__author__ = "Tony Josi"
+__license__ = "MIT"
+__email__ = "tonyjosi.mec@gmail.com"
+__status__ = "Production"
+
+
 """
 ************************************************
 
@@ -7,7 +13,6 @@ Embed data Log can be found as: embedlog.log
 
 ************************************************
 """
-
 
 from PIL import Image
 import sys, os
