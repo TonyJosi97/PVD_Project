@@ -99,7 +99,7 @@ def embedbits(i, j, pixel, diff, colorpixel):
         # print(bival,newbival)
         # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
         lg.write("%s %s %s %s %s %s %s" % (i, j, pixel, diff, pad, charNum, "\n"))
-        #print(i,j,pixel,newbival,end=" ")
+        # print(i,j,pixel,newbival,end=" ")
         return int(newbival, 2)
     else:
         newbits = bits + paddbits[: (nb - len(bits))]
@@ -115,13 +115,13 @@ def embedbits(i, j, pixel, diff, colorpixel):
         count += 1
         retrieved = retrieved[: (len(retrieved) - pad)]
         # print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
-        #print(i,j,pixel,newbival,end=" ")
+        # print(i,j,pixel,newbival,end=" ")
         lg.write("%s %s %s %s %s %s %s" % (i, j, pixel, diff, pad, charNum, "\n"))
         binval = input.read(1)
-        #print(binval)
+        # print(binval)
         if len(binval) == 0:
             # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
-            #print(chr(int(retrieved, 2)))
+            # print(chr(int(retrieved, 2)))
             print("Embedding Completed")
             input.close()
             completed = 1
@@ -132,7 +132,7 @@ def embedbits(i, j, pixel, diff, colorpixel):
         # print(eightbit)
         bitstring = bin(b)
         bits = bitstring[2:]
-        #print(chr(int(retrieved, 2)))
+        # print(chr(int(retrieved, 2)))
         retrieved = ""
         # print(bival,newbival)
         # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
@@ -158,7 +158,7 @@ def main():
                     if l >= wi:
                         break
                     r, g, b = pix[k, l]
-                    #print(pix[k,l])
+                    # print(pix[k,l])
                     rdif = r - rref
                     gdif = g - gref
                     bdif = b - bref
@@ -176,7 +176,7 @@ def main():
                         im.save("protest.png")
                         lg.close()
                         print("Embedded:", embedded, "bits")
-                        #print(count)
+                        # print(count)
                         sys.exit("Done..Exiting main prog.")
                     embedded = (
                         embedded + classify(rdif) + classify(gdif) + classify(bdif)
