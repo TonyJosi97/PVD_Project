@@ -30,6 +30,7 @@ count = 0
 paddbits = "0000000"
 
 binval = input.read(1)
+charNum = 1
 if len(binval) == 0:
     print("\nEmpty i/p File!")
     sys.exit("Exiting...")
@@ -82,7 +83,7 @@ def calcCapacity():
 
 def embedbits(i, j, pixel, diff, colorpixel):
     nb = diff
-    global bits, count, bitstring, paddbits, binval, completed, retrieved, input
+    global bits, count, bitstring, paddbits, binval, completed, retrieved, input, charNum
     pad = 0
     if nb < len(bits):
         # print(bits,end=" ")
@@ -97,7 +98,8 @@ def embedbits(i, j, pixel, diff, colorpixel):
         newbival = bival[: (len(bival) - len(data))] + data
         # print(bival,newbival)
         # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
-        lg.write("%s %s %s %s %s %s" % (i, j, pixel, diff, pad, "\n"))
+        lg.write("%s %s %s %s %s %s %s" % (i, j, pixel, diff, pad, charNum, "\n"))
+        #print(i,j,pixel,newbival,end=" ")
         return int(newbival, 2)
     else:
         newbits = bits + paddbits[: (nb - len(bits))]
@@ -113,10 +115,13 @@ def embedbits(i, j, pixel, diff, colorpixel):
         count += 1
         retrieved = retrieved[: (len(retrieved) - pad)]
         # print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
+        #print(i,j,pixel,newbival,end=" ")
+        lg.write("%s %s %s %s %s %s %s" % (i, j, pixel, diff, pad, charNum, "\n"))
         binval = input.read(1)
+        #print(binval)
         if len(binval) == 0:
             # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
-            lg.write("%s %s %s %s %s %s" % (i, j, pixel, diff, pad, "\n"))
+            #print(chr(int(retrieved, 2)))
             print("Embedding Completed")
             input.close()
             completed = 1
@@ -127,10 +132,11 @@ def embedbits(i, j, pixel, diff, colorpixel):
         # print(eightbit)
         bitstring = bin(b)
         bits = bitstring[2:]
+        #print(chr(int(retrieved, 2)))
         retrieved = ""
         # print(bival,newbival)
         # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
-        lg.write("%s %s %s %s %s %s" % (i, j, pixel, diff, pad, "\n"))
+        charNum += 1
         return int(newbival, 2)
 
 
@@ -152,6 +158,7 @@ def main():
                     if l >= wi:
                         break
                     r, g, b = pix[k, l]
+                    #print(pix[k,l])
                     rdif = r - rref
                     gdif = g - gref
                     bdif = b - bref
@@ -165,9 +172,11 @@ def main():
                     if completed == 0:
                         newb = embedbits(k, l, "b", classify(bdif), b)
                     if completed == 1:
+                        pix[k, l] = (newr, newg, newb)
                         im.save("protest.png")
                         lg.close()
                         print("Embedded:", embedded, "bits")
+                        #print(count)
                         sys.exit("Done..Exiting main prog.")
                     embedded = (
                         embedded + classify(rdif) + classify(gdif) + classify(bdif)
