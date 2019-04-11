@@ -68,7 +68,7 @@ def main():
     # Close file objects
     outp.close()
     lg.close()
-    print("Extracting to the file:",sys.argv[2])
+    print("Extracting to the file:", sys.argv[2])
     print("Extraction completed...  Exiting!")
 
 
