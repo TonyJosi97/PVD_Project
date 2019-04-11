@@ -7,8 +7,8 @@ __status__ = "Production"
 """
 ************************************************
 
-Usage: python3 embed.py <i/p File> <Cover Image> 
-Ex:    python3 embed.py enc test.png 
+Usage: python3 pvdEmbed.py <i/p File> <Cover Image> 
+Ex:    python3 pvdEmbed.py enc test.png 
 Embed data Log can be found as: embedlog.log
 
 ************************************************
@@ -17,10 +17,12 @@ Embed data Log can be found as: embedlog.log
 from PIL import Image
 import sys, os
 
+# File Objects creation
 input = open(sys.argv[1], "r")
 im = Image.open(sys.argv[2])
 lg = open("embedlog.log", "w")
 
+# Initialisation
 pix = im.load()
 hi, wi = im.size
 
@@ -35,7 +37,6 @@ if len(binval) == 0:
     print("\nEmpty i/p File!")
     sys.exit("Exiting...")
 b = ord(binval)
-# print(eightbit)
 bitstring = bin(b)
 bits = bitstring[2:]
 
@@ -43,7 +44,7 @@ capacity = 0
 lix = hi // 3
 liy = wi // 3
 
-
+# Classify pixels based on the difference in pixel value to the number of bits to be substituted to LSB
 def classify(pvd):
     nbits = 0
     if pvd < 16:
@@ -54,12 +55,18 @@ def classify(pvd):
         nbits = 4
     return nbits
 
-
+# Calculate embedding capacity of the given cover image
 def calcCapacity():
     global capacity
+
+    #Divide pixels to [3 x 3] matrix
     for i in range(0, lix * 3, 3):
         for j in range(0, liy * 3, 3):
+
+            # Obtain pixel values of ref. pixel
             rref, gref, bref = pix[i + 1, j + 1]
+
+            # For all pixels in the matrix
             for k in range(i, (i + 3)):
                 if k >= hi:
                     break
@@ -68,6 +75,8 @@ def calcCapacity():
                         continue
                     if l >= wi:
                         break
+
+                    #Calculate the difference in pixel values
                     r, g, b = pix[k, l]
                     rdif = r - rref
                     gdif = g - gref
@@ -75,80 +84,103 @@ def calcCapacity():
                     rdif = abs(rdif)
                     gdif = abs(gdif)
                     bdif = abs(bdif)
+
+                    # Cumulative capacity
                     capacity = (
                         capacity + classify(rdif) + classify(gdif) + classify(bdif)
                     )
+
+    # Return capacity
     return capacity
 
-
+# Function to embed data to pixel 
 def embedbits(i, j, pixel, diff, colorpixel):
-    nb = diff
     global bits, count, bitstring, paddbits, binval, completed, retrieved, input, charNum
+    
+    #Initialise
     pad = 0
+    nb = diff
+
+    # If the number of bits required is less than the number of bits in the data(char.) to be Embedded 
     if nb < len(bits):
-        # print(bits,end=" ")
+
+        #Initialise
         newbits = bits[:nb]
         bits = bits[nb:]
-        # print(newbits)
-        retrieved += newbits
         val = colorpixel
         data = newbits
         bival = bin(val)
         bival = bival[2:]
         newbival = bival[: (len(bival) - len(data))] + data
-        # print(bival,newbival)
-        # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+
+        # Write data to log File for extraction
         lg.write("%s %s %s %s %s %s %s" % (i, j, pixel, diff, pad, charNum, "\n"))
-        # print(i,j,pixel,newbival,end=" ")
+
+        # Return new pixel value after embedding
         return int(newbival, 2)
+
+    # If the number of bits required is greater than the number of bits in the data(char.) to be Embedded 
     else:
+
+        # Apply padding
         newbits = bits + paddbits[: (nb - len(bits))]
         pad = nb - len(bits)
-        retrieved += newbits
-        # print("pad",newbits)
-        # print("stats",newbits,retrieved)
         val = colorpixel
         data = newbits
         bival = bin(val)
         bival = bival[2:]
         newbival = bival[: (len(bival) - len(data))] + data
         count += 1
-        retrieved = retrieved[: (len(retrieved) - pad)]
-        # print("Info for",count,"data:","retrieved -",int(retrieved,2),"orginal - ",int(bitstring,2))
-        # print(i,j,pixel,newbival,end=" ")
+
+        # Write data to log File for extraction
         lg.write("%s %s %s %s %s %s %s" % (i, j, pixel, diff, pad, charNum, "\n"))
+
+        # Read new char. for embedding
         binval = input.read(1)
-        # print(binval)
+
+        # Check if file containing data to embed reached its end
         if len(binval) == 0:
-            # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
-            # print(chr(int(retrieved, 2)))
             print("Embedding Completed")
+
+            # Close input file object
             input.close()
+
+            # Activate complete flag
             completed = 1
-            # print(bival,newbival)
+
+            # Return new pixel value after embedding
             return int(newbival, 2)
-        # outp.write(chr(int(retrieved, 2)))
+
+        # Check if file containing data to embed havent reached its end
         b = ord(binval)
-        # print(eightbit)
         bitstring = bin(b)
         bits = bitstring[2:]
-        # print(chr(int(retrieved, 2)))
         retrieved = ""
-        # print(bival,newbival)
-        # print("location:",i,j,"pixel:",pixel,"no of bits:",diff,"pad:",pad)
+
+        # Increment the char count of embedded data
         charNum += 1
+
+        # Return new pixel value after embedding
         return int(newbival, 2)
 
 
+# Main Function
 def main():
+
+    # Initialise counter containing num of bits embedded till embedding ends
     embedded = 0
+
+    # Print total Embedding capacity
     print("Total Embd. Capacity: ", calcCapacity())
-    # st = os.stat(sys.argv[1])
-    # print("I/P File Size: ",len(input.read()),"stat: ",st.st_size)
+
+    #Divide pixels to [3 x 3] matrix
     for i in range(0, lix * 3, 3):
         for j in range(0, liy * 3, 3):
-            # print("--------------")
+
+            # Obtain pixel values of ref. pixel
             rref, gref, bref = pix[i + 1, j + 1]
+
+            # For all pixels in the matrix
             for k in range(i, (i + 3)):
                 if k >= hi:
                     break
@@ -157,32 +189,48 @@ def main():
                         continue
                     if l >= wi:
                         break
+
+                    # Calculate pixel value difference
                     r, g, b = pix[k, l]
-                    # print(pix[k,l])
                     rdif = r - rref
                     gdif = g - gref
                     bdif = b - bref
                     rdif = abs(rdif)
                     gdif = abs(gdif)
                     bdif = abs(bdif)
+
+                    # Till embedding gets completed
                     if completed == 0:
                         newr = embedbits(k, l, "r", classify(rdif), r)
                     if completed == 0:
                         newg = embedbits(k, l, "g", classify(gdif), g)
                     if completed == 0:
                         newb = embedbits(k, l, "b", classify(bdif), b)
+
+                    # Embedding completed
                     if completed == 1:
+
+                        # Assign modified pixel values
                         pix[k, l] = (newr, newg, newb)
+
+                        # Save embedded image 
                         im.save("protest.png")
+
+                        # Close log file
                         lg.close()
                         print("Embedded:", embedded, "bits")
-                        # print(count)
+                        
+                        # Exit program 
                         sys.exit("Done..Exiting main prog.")
+
+                    # Calculate the number of bits embedded
                     embedded = (
                         embedded + classify(rdif) + classify(gdif) + classify(bdif)
                     )
-                    # print("\n__",k,l,": ",pix[k,l],"bits: ",classify(rdif),classify(gdif),classify(bdif),"binary: ",'{0:08b}'.format(r))
+
+                    # Assign modified pixel values
                     pix[k, l] = (newr, newg, newb)
+    # Exit if Data size greater than embedding capacity
     sys.exit("Exiting... Data size greater than embedding capacity!!")
 
 

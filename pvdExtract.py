@@ -1,3 +1,18 @@
+__author__ = "Tony Josi"
+__license__ = "MIT"
+__email__ = "tonyjosi.mec@gmail.com"
+__status__ = "Production"
+
+
+"""
+************************************************
+
+Usage: python3 pvdExtract.py <Embedded Cover Image File> <Output File> 
+Ex:    python3 pvdExtract.py protest.png cipher
+
+************************************************
+"""
+
 from PIL import Image
 import sys, os
 
