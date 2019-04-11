@@ -55,11 +55,12 @@ def classify(pvd):
         nbits = 4
     return nbits
 
+
 # Calculate embedding capacity of the given cover image
 def calcCapacity():
     global capacity
 
-    #Divide pixels to [3 x 3] matrix
+    # Divide pixels to [3 x 3] matrix
     for i in range(0, lix * 3, 3):
         for j in range(0, liy * 3, 3):
 
@@ -76,7 +77,7 @@ def calcCapacity():
                     if l >= wi:
                         break
 
-                    #Calculate the difference in pixel values
+                    # Calculate the difference in pixel values
                     r, g, b = pix[k, l]
                     rdif = r - rref
                     gdif = g - gref
@@ -93,18 +94,19 @@ def calcCapacity():
     # Return capacity
     return capacity
 
-# Function to embed data to pixel 
+
+# Function to embed data to pixel
 def embedbits(i, j, pixel, diff, colorpixel):
     global bits, count, bitstring, paddbits, binval, completed, retrieved, input, charNum
-    
-    #Initialise
+
+    # Initialise
     pad = 0
     nb = diff
 
-    # If the number of bits required is less than the number of bits in the data(char.) to be Embedded 
+    # If the number of bits required is less than the number of bits in the data(char.) to be Embedded
     if nb < len(bits):
 
-        #Initialise
+        # Initialise
         newbits = bits[:nb]
         bits = bits[nb:]
         val = colorpixel
@@ -119,7 +121,7 @@ def embedbits(i, j, pixel, diff, colorpixel):
         # Return new pixel value after embedding
         return int(newbival, 2)
 
-    # If the number of bits required is greater than the number of bits in the data(char.) to be Embedded 
+    # If the number of bits required is greater than the number of bits in the data(char.) to be Embedded
     else:
 
         # Apply padding
@@ -173,7 +175,7 @@ def main():
     # Print total Embedding capacity
     print("Total Embd. Capacity: ", calcCapacity())
 
-    #Divide pixels to [3 x 3] matrix
+    # Divide pixels to [3 x 3] matrix
     for i in range(0, lix * 3, 3):
         for j in range(0, liy * 3, 3):
 
@@ -213,14 +215,14 @@ def main():
                         # Assign modified pixel values
                         pix[k, l] = (newr, newg, newb)
 
-                        # Save embedded image 
+                        # Save embedded image
                         im.save("protest.png")
 
                         # Close log file
                         lg.close()
                         print("Embedded:", embedded, "bits")
-                        
-                        # Exit program 
+
+                        # Exit program
                         sys.exit("Done..Exiting main prog.")
 
                     # Calculate the number of bits embedded
