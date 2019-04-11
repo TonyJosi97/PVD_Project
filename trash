@@ -222,6 +222,15 @@ for i in range(0,lix*3,3):
 
 
 
+
+
+
+
+
+
+
+pvdExtract
+
 from PIL import Image
 import sys, os
 
@@ -293,7 +302,7 @@ if __name__ == "__main__":
 
 
 
-
+pvdEmbed
 
 
 __author__ = "Tony Josi"
@@ -437,7 +446,6 @@ def embedbits(i, j, pixel, diff, colorpixel):
         charNum += 1
         return int(newbival, 2)
 
-
 def main():
     embedded = 0
     print("Total Embd. Capacity: ", calcCapacity())
@@ -488,3 +496,97 @@ if __name__ == "__main__":
     main()
 
 
+
+readpixel
+
+from PIL import Image
+
+im = Image.open('protest.png') # Can be many different formats.
+pix = im.load()
+hi,wi = im.size 
+
+mi = 0
+mj = 0
+count = 0
+
+print(hi,wi)
+
+for i in range(hi//3):
+    for j in range(wi//3):
+        if(mi + 3 > hi and mj + 3 > wi):
+                break
+        print("\n************************\n")
+        for k in range(mi, mi+3):
+            for l in range(mj, mj+3):
+                r, g, b = pix[l, k]
+                print("\n--",l,k,end=" ")
+                print("pix ", r, g, b, end=" ")
+                print(pix[l,k], end=" ")
+        print()
+        mi = mi+3
+        mj = mj+3
+        count += 1
+
+print("co : ", count)
+
+
+'''
+for i in range(hi):
+    for j in range(wi):
+            r,g,b = pix[i,j]
+            print("__",i,j,"rgb - ",r,g,b,"pix = ",pix[i,j],end=" ")
+            print()
+'''
+
+
+
+readbits
+
+import contextlib, sys
+from random import randint
+python3 = sys.version_info.major >= 3
+
+paddbits = '0000000'
+
+def rand():
+    return randint(1, 3)
+
+def main(args):
+    ipfile = args
+    outp = open("retrieved","w")
+    count = 0
+    with open(ipfile, "r") as input:
+        while True:
+            binval = input.read(1)
+            if len(binval) == 0:
+                break
+            b = ord(binval)
+            #print(eightbit)
+            bitstring = bin(b)
+            bits = bitstring[2:]
+            retrieved = ''
+            count += 1
+            while True:
+                nb = rand()
+                if(nb < len(bits)):
+                    #print(bits,end=" ")
+                    newbits = bits[:nb]
+                    bits = bits[nb:]
+                    #print(newbits)
+                    retrieved += newbits
+                    #print("stats",newbits,retrieved,end=" ")
+                else:
+                    newbits = bits + paddbits[:(nb-len(bits))]
+                    pad = nb-len(bits)
+                    retrieved += newbits
+                    #print("pad",newbits)
+                    #print("stats",newbits,retrieved,end=" ")
+                    break
+            retrieved = retrieved[:(len(retrieved)-pad)]
+            #print()
+            print("Data:",count,int(retrieved,2),int(bitstring,2))
+            outp.write(chr(int(retrieved,2)))
+    outp.close()
+
+if __name__ == "__main__":
+	main(sys.argv[1])
