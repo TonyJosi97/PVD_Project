@@ -22,7 +22,7 @@ def main():
         # Check if log file reached its end
         if len(st) == 0:
             # Write extracted data to file
-            print(chr(int(chrtr, 2)))
+            # print(chr(int(chrtr, 2)))
             outp.write(chr(int(chrtr, 2)))
             break
 
@@ -39,7 +39,7 @@ def main():
 
         # Check if a new character in embed log is reached
         if temp != charNum:
-            print(chr(int(chrtr, 2)), end="")
+            # print(chr(int(chrtr, 2)), end="")
             outp.write(chr(int(chrtr, 2)))
             chrtr = ""
 
@@ -68,6 +68,8 @@ def main():
     # Close file objects
     outp.close()
     lg.close()
+    print("Extracting to the file:",sys.argv[2])
+    print("Extraction completed...  Exiting!")
 
 
 if __name__ == "__main__":
